@@ -1,55 +1,77 @@
-
 # 汇知 · 文档智能工作台
 
-一个面向学生与企业的中文文档整理前端原型。它将零散资料集中在一个工作台中，提供跨文档总结、关键词、结论依据和导出操作的完整交互体验。
+汇知是一个中文文档整理网站：GitHub Pages 托管前端，FastAPI 后端负责解析文件并调用 OpenAI API。真实分析需要先部署后端并配置服务端环境变量。
 
-> 当前版本是透明的纯前端演示：上传的文件不会离开浏览器；“智能整理”的内容为预设模拟结果，并未连接文件解析或真实 AI 服务。
+## 支持的格式
 
-## 功能
+- PDF（可提取文字的 PDF；扫描版 PDF 暂不做 OCR）
+- Word：DOCX
+- PowerPoint：PPTX
+- Excel：XLSX
+- TXT、Markdown
 
-- 拖拽或选择上传多个文件
-- 支持 PDF、Word、PPT、Excel、TXT、Markdown 等文件类型提示
-- 当前页面内的文档资料库，可移除或清空资料
-- 模拟的跨文档总结、关键结论与关键词提取
-- 结论依据与来源文件入口，体现可追溯的产品结构
-- 一键复制和导出整理结果为 `.txt`
-- 隐私与 AI 能力限制说明
-- 自适应桌面与移动端布局
+旧版二进制格式 DOC、PPT、XLS 暂不支持；请另存为 DOCX、PPTX、XLSX 后上传。单个文件最多 20 MB，每次最多 8 个文件，提取文字总量最多 120,000 字符。当前版本不保存上传文件到永久资料库。
 
-## 本地打开
-
-这是一个无需安装依赖的静态网站。
-
-1. 用浏览器打开 `index.html`。
-2. 点击“载入示例资料”，或上传本地文件体验资料库交互。
-3. 点击“开始智能整理”查看标注为“模拟演示”的结果。
-
-也可以在该目录启动任意静态文件服务器，再访问其提供的本地地址。
-
-## 项目结构
+## 仓库结构
 
 ```text
-├── index.html    # 页面结构与内容
-├── styles.css    # 视觉设计与响应式样式
-├── app.js        # 上传、资料库、模拟结果、复制与导出交互
-└── README.md
+index.html
+styles.css
+app.js
+config.js
+README.md
+backend/
+  main.py
+  requirements.txt
+  .env.example
 ```
 
-## 真实服务接入建议
+## 部署后端（Render，新手路线）
 
-要将本原型改为可用于生产的文档智能应用，建议增加：
+1. 登录 Render，并选择 **New → Web Service**，连接此 GitHub 仓库。
+2. 选择 Python 环境；**Root Directory** 填 `backend`。
+3. **Build Command**：`pip install -r requirements.txt`
+4. **Start Command**：`uvicorn main:app --host 0.0.0.0 --port $PORT`
+5. 在服务的 Environment 设置中添加：
+   - `OPENAI_API_KEY`：你的 OpenAI API 密钥（只填在 Render 的私密环境变量设置里）
+   - `OPENAI_MODEL`：`gpt-4.1-mini`（也可设置为你账号可用的模型）
+   - `FRONTEND_ORIGINS`：`https://bennyzhang-boom.github.io`
+6. 点击部署，等待成功。访问 Render 分配的服务地址加上 `/health`，应返回 `{"status":"ok"}`。
 
-1. **安全上传与存储**：鉴权、文件大小和类型校验、病毒扫描、加密存储及生命周期删除策略。
-2. **文档解析**：PDF/OCR、Office 文档、表格与幻灯片内容提取，并保留页码、段落等来源定位信息。
-3. **AI 工作流**：按文件分块、向量检索、跨文档归纳、关键词抽取，并使用来源引用约束生成回答。
-4. **人工核验**：明确展示 AI 不确定性，支持用户编辑结果和回到原文验证结论。
-5. **隐私合规**：取得上传资料的处理授权；不要将敏感个人信息或商业机密发送至未经批准的模型服务。
+不要把密钥贴到聊天、写入文件、提交到 GitHub，或放在浏览器开发者工具可见的前端变量里。OpenAI API 可能单独计费，ChatGPT 订阅不等同于 API 额度。
 
-## 部署
+## 连接前端
 
-该项目可部署至任意静态托管服务，例如 GitHub Pages、Netlify 或 Vercel。上传本目录中的三个网站文件即可；不需要构建步骤。
+1. 部署成功后，复制 Render 服务的基础地址，例如 `https://your-service.onrender.com`（用你自己的实际地址）。
+2. 打开仓库中的 `config.js`，把空字符串改为服务地址：
 
-## 技术说明
+   ```js
+   window.HUIZHI_API_BASE = "https://your-service.onrender.com";
+   ```
 
-原生 HTML、CSS 与 JavaScript，无第三方运行时依赖。
+   这里只能放公开的后端网址，不放密钥。
+3. 提交 `config.js` 修改，等待 GitHub Pages 自动发布。
+4. 打开网站，上传一个不含敏感信息的测试文件，点击“开始智能整理”。
 
+## 本地运行后端
+
+进入 `backend` 目录后：
+
+```bash
+python -m venv .venv
+# Windows PowerShell:
+.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+# 先在当前终端设置 OPENAI_API_KEY 环境变量，再运行：
+uvicorn main:app --reload
+```
+
+本地测试时将 `config.js` 的地址设置为 `http://127.0.0.1:8000`。真实密钥不要放进任何项目文件。
+
+## 安全与限制
+
+- 后端限制文件类型、单文件大小、文件数量和提取文本总量；有基础的 IP 频率限制。
+- 频率限制为原型级保护，正式公开服务前应增加可靠的用户身份验证、持久化限流和滥用监控。
+- 文件内容会发送到你部署的后端，并用于调用 OpenAI API；请只上传有权处理的资料，不要上传敏感个人信息或机密文件。
+- 扫描版 PDF 需要 OCR；旧版 DOC/PPT/XLS 不在当前解析范围。
+- AI 结果可能不准确，引用和结论应回到原文核对。
