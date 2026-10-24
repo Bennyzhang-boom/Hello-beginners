@@ -64,6 +64,14 @@ function showResult(result) {
   document.querySelector('#keyword-count').textContent = (result.keywords || []).length;
   const sources = document.querySelector('#result-sources');
   sources.replaceChildren();
+  (result.sources || []).forEach(source => {
+    const row = document.createElement('div'); row.className = 'source-item';
+    const num = document.createElement('span'); num.className = 'source-num'; num.textContent = String(sources.children.length + 1).padStart(2,'0');
+    const body = document.createElement('div');
+    const p = document.createElement('p'); p.textContent = [source.file, source.locator].filter(Boolean).join(' · ');
+    const evidence = document.createElement('p'); evidence.textContent = source.evidence ? '依据：' + source.evidence : 'AI 未提供可展示的原文依据';
+    body.append(p,evidence); row.append(num,body); sources.appendChild(row);
+  });
   (result.files || []).forEach(file => {
     const row = document.createElement('div'); row.className = 'source-item';
     const num = document.createElement('span'); num.className = 'source-num'; num.textContent = String(sources.children.length + 1).padStart(2,'0');
