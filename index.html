@@ -35,8 +35,8 @@
       <section class="upload-section" aria-label="上传资料">
         <div class="section-heading"><div><h2>添加需要整理的资料</h2><p>支持一次上传多个文件，AI 将帮助你建立资料脉络。</p></div><button class="text-button" id="demo-btn">载入示例资料 <span>→</span></button></div>
         <label class="dropzone" id="dropzone" for="file-input">
-          <input id="file-input" type="file" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.md" />
-          <span class="upload-symbol">↑</span><strong>拖拽文件到这里，或 <u>选择文件</u></strong><small>单个文件最大 50 MB</small>
+          <input id="file-input" type="file" multiple accept=".pdf,.docx,.pptx,.xlsx,.txt,.md" />
+          <span class="upload-symbol">↑</span><strong>拖拽文件到这里，或 <u>选择文件</u></strong><small>支持 PDF、DOCX、PPTX、XLSX、TXT、MD；单个文件最大 20 MB</small>
           <div class="file-types"><span>PDF</span><span>Word</span><span>PPT</span><span>Excel</span><span>TXT</span></div>
         </label>
         <div class="privacy-note"><span>♢</span><p><strong>你的资料由你掌控。</strong>文件仅用于本次分析；请勿上传包含敏感个人信息或商业机密的内容。<button id="privacy-btn">查看数据与 AI 说明</button></p></div>
@@ -46,23 +46,25 @@
         <div class="library-card" id="library">
           <div class="card-heading"><div><p class="eyebrow">DOCUMENTS</p><h2>当前资料 <span id="library-number">4</span></h2></div><button class="mini-button" id="clear-btn">清空</button></div>
           <div class="document-list" id="document-list"></div>
-          <button class="analyze-button" id="analyze-btn"><span>✦</span> 开始智能整理 <small>模拟演示</small></button>
+          <button class="analyze-button" id="analyze-btn"><span>✦</span> 开始智能整理 <small>真实 AI</small></button>
         </div>
         <div class="result-card" id="results">
           <div class="result-empty" id="result-empty"><div class="empty-star">✦</div><h2>等待资料汇入</h2><p>添加文件后，在这里查看跨文档的核心结论与线索。</p></div>
           <div class="result-content hidden" id="result-content">
-            <div class="result-top"><div><p class="eyebrow">SIMULATED AI RESULT</p><h2>项目资料综述</h2></div><div class="result-actions"><button class="icon-action" id="copy-btn" title="复制结果">⧉</button><button class="export-button" id="export-btn">导出 <span>↓</span></button></div></div>
-            <div class="simulation-label">演示结果 · 尚未连接真实 AI 与文件解析服务</div>
-            <div class="summary"><h3>核心概述</h3><p>这组资料共同描绘了一个以用户需求为起点、分阶段推进的项目框架。当前共识集中在提升体验效率、明确实施节奏，并通过反馈持续验证关键假设。</p></div>
-            <div class="insight-row"><div><h3>关键结论</h3><ol><li>优先解决高频且影响显著的使用阻碍。</li><li>首个版本应聚焦核心流程，不宜过早扩展功能。</li><li>需要建立可量化的复盘指标与反馈机制。</li></ol></div><div class="keywords"><h3>关键词 <span>8</span></h3><div><button>用户需求</button><button>项目规划</button><button>效率提升</button><button>核心流程</button><button>阶段目标</button><button>反馈验证</button><button>协同</button><button>指标</button></div></div></div>
-            <div class="sources"><div class="source-heading"><h3>结论依据</h3><button id="trace-btn">查看全部溯源 →</button></div><div class="source-item"><span class="source-num">01</span><p>“先对核心用户的使用路径完成验证，再逐步扩大范围。”</p><button class="source-file">用户访谈纪要.pdf <span>↗</span></button></div><div class="source-item"><span class="source-num">02</span><p>“第一阶段围绕最小可行流程搭建，重点观察转化。”</p><button class="source-file">项目方案 V2.docx <span>↗</span></button></div></div>
+            <div class="result-top"><div><p class="eyebrow">AI DOCUMENT RESULT</p><h2 id="result-title">文档整理结果</h2></div><div class="result-actions"><button class="icon-action" id="copy-btn" title="复制结果">⧉</button><button class="export-button" id="export-btn">导出 <span>↓</span></button></div></div>
+            <div class="simulation-label" id="result-status">真实 AI 分析结果</div>
+            <div class="summary"><h3>核心概述</h3><p id="result-overview"></p></div>
+            <div class="insight-row"><div><h3>关键结论</h3><ol id="result-key-points"></ol></div><div class="keywords"><h3>关键词 <span id="keyword-count">0</span></h3><div id="result-keywords"></div></div></div>
+            <div class="sources"><div class="source-heading"><h3>分析文件</h3></div><div id="result-sources"></div></div>
+          </div>
           </div>
         </div>
       </section>
     </main>
 
     <div class="toast" id="toast" role="status"></div>
-    <dialog id="info-dialog"><button class="dialog-close" id="dialog-close">×</button><p class="eyebrow">透明说明</p><h2>数据与 AI 使用说明</h2><p>这是一个前端交互原型。上传的文件只会显示在当前浏览器页面中，不会被发送到服务器，也不会被真正读取或分析。</p><p>“智能整理”展示的是预设的模拟结果，不能代替人工阅读、专业判断或事实核验。接入真实服务前，请配置安全的文件存储、解析与 AI 接口，并取得资料处理所需的授权。</p><button class="upgrade dialog-ok" id="dialog-ok">我知道了</button></dialog>
+    <dialog id="info-dialog"><button class="dialog-close" id="dialog-close">×</button><p class="eyebrow">透明说明</p><h2>数据与 AI 使用说明</h2><p>汇知会将你选择的文件发送至已配置的后端服务进行解析，并把提取出的文本发送给 OpenAI API 生成整理结果。文件不会由本网站主动保存为资料库，但会在处理期间经过后端与模型服务。</p><p>请勿上传敏感个人信息、密码、未获授权的商业机密或其他不适合发送给第三方服务的内容。AI 结果可能遗漏或误解原文，请返回原文核验。当前版本支持 PDF、DOCX、PPTX、XLSX、TXT、MD；扫描版 PDF 需要 OCR，旧版 DOC/PPT/XLS 暂不支持。</p><button class="upgrade dialog-ok" id="dialog-ok">我知道了</button></dialog>
+    <script src="config.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
